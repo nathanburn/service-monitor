@@ -1,0 +1,11 @@
+version: '3.4'
+services:
+    service-monitor:
+        container_name: service-monitor-kry
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+            - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/dev # use internal
+        ports:
+          - 8887:8080

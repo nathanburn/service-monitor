@@ -13,6 +13,7 @@ need to reload the page to see results)
 - Protect the poller from misbehaving services (for example answering
 really slowly)
 
+
 ## Run with Docker Compose
 
 Pre-requisties:
@@ -29,6 +30,9 @@ docker-compose -f docker-compose-db.yml up --force-recreate --build -d
 docker-compose -f docker-compose-app.yml up --force-recreate --build
 ```
 
+3. Navigate to `http://localhost:8887` in your browser.
+
+
 ## OR Build and Run Locally
 
 Pre-requisties:
@@ -36,10 +40,11 @@ Pre-requisties:
 - Installed Maven
 
 ### Run App with with Maven Spring-Boot
-Run with `maven` spring boot:
+1. Run with `maven` spring boot:
 ```
 mvn spring-boot:run
 ```
+2. Navigate to `http://localhost:8080` in your browser.
 
 ### Or run App with JAR file
 1. Build with `maven` package:
@@ -50,6 +55,8 @@ mvn clean package
 ```
 java -jar target/service-monitor-0.0.2.jar
 ```
+3. Navigate to `http://localhost:8080` in your browser.
+
 
 ## Connect and Query MySql Database
 1. Connect to the runing database container:
@@ -60,9 +67,9 @@ docker exec -it database mysql -uroot -p
 ```
 USE dev
 ```
-3. Select to view all the records from the `services` database:
+3. Select to view all the records from the `service` database:
 ```
-SELECT * FROM services;
+SELECT * FROM service;
 ```
 
 ## Get mysqldump from MySql Database in container
@@ -73,3 +80,37 @@ docker exec -i database mysqldump -uroot -p --databases dev --skip-comments > /U
 
 ## References
 - Websockets incl SockJS https://github.com/spring-guides/tut-react-and-spring-data-rest/tree/master/events
+
+
+## Time Constraints - What would I have done with more time?
+
+- **Higher code coverage / tests** - write more unit tests for the models, views/UI and controllers/REST services.
+
+- **Separation** - split the models, views/UI and controllers/REST services into different libraries/projects to enable better separation of responsibilites (i.e. the UI is run/hosted in isolation from the REST service) and ease maintainability and code sharing/re-use.
+
+- **Configuration** - all magic strings and numbers should be managed through the `application.properties`, to enable easy override/configuartion with environment variables.
+
+
+## Future Considerations - What would I do to manage this as a real product?
+
+### Build Pipeline / Continuous Integration
+
+- Tests incl. **Unit Tests** (e.g. `SonarQube` incl. coverage and security advice), **Component Tests**, **Contract Tests** (e.g. `PACT` incl REST/HTTP contract verification) and **Performance Tests** (e.g. `Taurus/JMeter` incl. scenario based concurrency and scale tests)
+
+- Vulnerability Scanning e.g. **JFrog Xray** (identifying security and license violations) and **Snyk** (find and fix vulnerabilities)
+
+- Upload builds/release bundles (`Docker` images, `Helm` charts etc.) to an artifact store e.g. **JFrog Artifactory**
+
+- Track all build and deployment artifacts e.g. **Grafeas** (artifact metadata API to audit and govern your software supply chain)
+
+### Release Pipeline / Continuous Deployment
+
+- Accesses builds/release bundles through an artifact store e.g. **JFrog Artifactory** (i.e. the release pipeline for good security concern separation should NOT have access to the source code / repositories).
+
+- Validate build and deployment artifacts prior to use e.g. **Grafeas** (artifact metadata API to audit and govern your software supply chain)
+
+- Infrastructure-as-Code updates using **Terraform** for cloud dependencies e.g. databases, caches, service buses etc.
+
+- Deployment to the Cloud (Kubernetes **clusters across multiple regions and data centers**) using `Helm CLI` or `Spinnaker`
+
+- Post deployment tests incl **Health Check Tests**, **Component Tests**, **Performance Tests** and **Integration Tests** to **gate on roll-out to the next environment** e.g. rolling out across 2 or 3 environments in-turn e.g. `DEV/TEST`, `STAGE` and `PRODUCTION`
